@@ -2,13 +2,11 @@
 
 This is the monorepo for an opinionated framework for building beta minceraft (bedrock) addons.
 
-🚧 Blokkr is not ready for developing bedrock addons at this time. This framework is in beta until the beta api for bedrock is released. 🚧
-
 The framework is inspired by Angular IoC, Angular CLI, and RxJS. The intent of this project is to provide everything to build clean and scalable bedrock addons.
 
-## 🚧 Getting Started
+## Getting Started
 
-### 🚧 Prerequisites
+### Prerequisites
 
 What things you need to install the software and how to install them
 
@@ -16,7 +14,7 @@ What things you need to install the software and how to install them
 Give examples
 ```
 
-### 🚧 Installing
+### Installing
 
 A step by step series of examples that tell you how to get a development env running
 
@@ -34,7 +32,7 @@ until finished
 
 End with an example of getting some data out of the system or using it for a little demo
 
-## 🚧 Running the tests
+## Running the tests
 
 Explain how to run the automated tests for this system
 
