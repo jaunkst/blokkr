@@ -1,4 +1,4 @@
-# Blokkr - Minecraft (Bedrock) Addon Framework
+# <img src="https://github.com/jaunkst/blokkr/blob/master/.assets/icon.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="20" height="20" /> Blokkr - Minecraft (Bedrock) Addon Framework
 
 First, Blokkr is not ready for developing bedrock addons at this time.
 
