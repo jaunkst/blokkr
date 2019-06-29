@@ -1,9 +1,9 @@
 import "reflect-metadata";
 
-import { MCModule } from "@blokkr/core";
+import { Module } from "@blokkr/core";
 import { CoreModule, ClientService } from "@client/core";
 
-@MCModule({
+@Module({
   imports: [CoreModule],
   bootstrap: [ClientModule]
 })

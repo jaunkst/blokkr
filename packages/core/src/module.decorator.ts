@@ -14,7 +14,7 @@ export interface ModuleOptions {
   declarations?: any[];
   bootstrap?: any[];
 }
-export function MCModule(options?: ModuleOptions) {
+export function Module(options?: ModuleOptions) {
   return (target: any) => {
     const _options: ModuleOptions = (<any>Object).assign(
       {},

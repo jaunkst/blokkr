@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { MCModule } from "@blokkr/core";
+import { Module } from "@blokkr/core";
 import { ClientService } from "../index";
 
-@MCModule({
+@Module({
   imports: [],
   declarations: [ClientService],
   exports: [ClientService]
