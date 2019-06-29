@@ -56,7 +56,7 @@ We use a synchronized versioning scheme for versioning. For the versions availab
 
 See also the list of [contributors](https://github.com/jaunkst/brokkr/graphs/contributors) who participated in this project.
 
-## 👏 Acknowledgments
+## Acknowledgments
 
 - Hat tip to [AtomicBlom](https://github.com/minecraft-addon-tools/minecraft-scripting-types/commits?author=AtomicBlom) for the generation of bedrock API types.
 - IoC is inspired by the great work from Angular.io
