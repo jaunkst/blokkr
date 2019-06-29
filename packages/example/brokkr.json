@@ -1,0 +1,28 @@
+{
+  "buildOptions": {
+    "copy": [
+      {
+        "from": "/src/manifest.json",
+        "to": "/dist/manifest.json"
+      },
+      {
+        "from": "/src/pack_icon.png",
+        "to": "/dist/pack_icon.png"
+      }
+    ]
+  },
+  "projects": {
+    "client": {
+      "entry": "./src/scripts/client/client.ts",
+      "output": {
+        "path": "/dist/scripts/client"
+      }
+    },
+    "server": {
+      "entry": "./src/scripts/server/server.ts",
+      "output": {
+        "path": "/dist/scripts/server"
+      }
+    }
+  }
+}

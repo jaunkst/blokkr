@@ -1,0 +1,15 @@
+{
+  "name": "blokkr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "oao": "^1.6.0"
+  },
+  "dependencies": {}
+}

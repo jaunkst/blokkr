@@ -1,0 +1,5 @@
+_scrap
+node_modules
+dist
+examples
+yarn-error.log

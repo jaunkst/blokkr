@@ -1,0 +1,26 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "minecraft:llama",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "llama" ]
+      },
+      "minecraft:nameable": {
+      },
+      "minecraft:health": {
+        "value": {
+          "range_min": 15,
+          "range_max": 30
+        }
+      },
+      "minecraft:physics": {
+      }
+    }
+  }
+}

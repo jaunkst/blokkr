@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "allowJs": true,
+    "types": [
+      "jest",
+      "reflect-metadata",
+      "minecraft-scripting-types-client",
+      "minecraft-scripting-types-server"
+    ],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "."
+  },
+  "typeRoots": ["./typings"],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}

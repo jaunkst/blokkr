@@ -1,0 +1,39 @@
+{
+  "name": "@blokkr/cli",
+  "version": "1.0.0",
+  "license": "MIT",
+  "bin": {
+    "mcb": "./index.js"
+  },
+  "scripts": {
+    "test": "test",
+    "prebuild": "rm -rf ./dist",
+    "build": "ts-node ./scripts/build.ts && node ./scripts/inject.js",
+    "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok' && cp -rf ./dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
+  },
+  "devDependencies": {
+    "@types/copy-webpack-plugin": "^5.0.0",
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.0.10",
+    "@types/webpack": "^4.4.34",
+    "@types/webpack-merge": "^4.1.5",
+    "@types/webpack-sources": "^0.1.5",
+    "@types/webpackbar": "^2.6.0",
+    "@types/yargs": "^13.0.0",
+    "copy-webpack-plugin": "^5.0.3",
+    "jest": "^24.8.0",
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.2",
+    "webpack": "^4.35.0",
+    "webpack-cli": "^3.3.5",
+    "webpack-merge": "^4.2.1",
+    "webpackbar": "^3.2.0",
+    "yargonaut": "^1.1.4",
+    "yargs": "^13.2.4"
+  },
+  "dependencies": {
+    "del": "^4.1.1"
+  }
+}
