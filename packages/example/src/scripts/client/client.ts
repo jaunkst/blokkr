@@ -1,5 +1,3 @@
-import "reflect-metadata";
-
 import { Module } from "@blokkr/core";
 import { CoreModule, ClientService } from "@client/core";
 
