@@ -59,6 +59,7 @@ exports.handler = function(argv) {
         }
       ]
     },
+    stats: "none",
     resolve: {
       extensions: [".ts", ".js"],
       alias: resolveTsconfigPathsToAlias()

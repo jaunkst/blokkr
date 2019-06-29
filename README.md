@@ -57,7 +57,7 @@ cd blokkr
 yarn install
 yarn oao bootstrap
 cd packages/example
-yarn build --install
+yarn blok build --install
 ```
 
 🎉 Start minecraft and add the example addon to a new game.

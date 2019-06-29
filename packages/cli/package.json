@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "bin": {
-    "mcb": "./index.js"
+    "blok": "./index.js"
   },
   "scripts": {
     "test": "test",
