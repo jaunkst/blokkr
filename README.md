@@ -51,9 +51,18 @@ blok build --install --watch
 
 End with an example of getting some data out of the system or using it for a little demo
 
-## Running the tests
+## Running the example
 
-Explain how to run the automated tests for this system
+```
+git clone git@github.com:jaunkst/blokkr.git
+cd blokkr
+yarn install
+yarn oao bootstrap
+cd packages/example
+yarn build --install
+```
+
+🎉 Start minecraft and add the example addon to a new game.
 
 ## Built With
 
