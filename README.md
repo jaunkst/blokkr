@@ -1,6 +1,10 @@
-# ⚒️ Blokkr - Minecraft (Bedrock) Addon Framework
+> 👷 WARNING! This repo is still in progress.
 
-This is the monorepo for an opinionated framework for building beta minceraft (bedrock) addons.
+---
+
+# ⚒️ Blokkr - Minecraft Bedrock Addon Framework
+
+This is the monorepo for an opinionated framework for building Minecraft Bedrock addons.
 
 The framework is inspired by Angular IoC, Angular CLI, and RxJS. The intent of this project is to provide everything to build clean and scalable bedrock addons.
 
@@ -8,26 +12,41 @@ The framework is inspired by Angular IoC, Angular CLI, and RxJS. The intent of t
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+Things you will need.
 
-```
-Give examples
-```
+- Minecraft (Bedrock) on Windows, OSX, or Linux.
+  [Minecraft Bedrock Launcher](https://mcpelauncher.readthedocs.io/en/latest/index.html) is recommended for OSX, and Linux.
+- Node.js >= v10.13.0
+- Blokkr CLI
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
 ```
-Give the example
+yarn install -g @blokkr/cli
 ```
 
-And repeat
+Generating a new addon project.
 
 ```
-until finished
+blok new <project>
+```
+
+Building your addon
+
+```
+blok build
+```
+
+Installing your addon
+
+```
+blok install
+```
+
+Developing the addon
+
+```
+blok build --install --watch
 ```
 
 End with an example of getting some data out of the system or using it for a little demo
