@@ -6,12 +6,17 @@ import {
   setOptionsForModule
 } from "./utils";
 import { BehaviorSubject, Subscription, combineLatest } from "rxjs";
-import { filter as rxFilter, map as rxMap } from "rxjs/operators";
+import {
+  filter as rxFilter,
+  map as rxMap,
+  takeUntil as rxTakeUntil
+} from "rxjs/operators";
 
 console.log("MOMO");
 
 const initialize$ = new BehaviorSubject(false);
 const update$ = new BehaviorSubject(false);
+const shutdown$ = new BehaviorSubject(false);
 
 declare var __system__: IVanillaClientSystem;
 __system__.initialize = () => {
@@ -22,12 +27,17 @@ __system__.update = () => {
   update$.next(true);
 };
 
+__system__.shutdown = () => {
+  shutdown$.next(true);
+};
+
 // Module Decorator
 export interface ModuleOptions {
   root?: boolean;
   imports?: any[];
   exports?: any[];
   providers?: any[];
+  systems?: any[];
   bootstrap?: any[];
 }
 export function Module(options?: ModuleOptions) {
@@ -38,6 +48,7 @@ export function Module(options?: ModuleOptions) {
         imports: [],
         modules: [],
         providers: [],
+        systems: [],
         bootstrap: []
       },
       options
@@ -97,6 +108,7 @@ export function Module(options?: ModuleOptions) {
 
       combineLatest([initialize$, update$])
         .pipe(
+          rxTakeUntil(shutdown$),
           rxFilter(([initialize, _update]) => {
             return initialize;
           }),

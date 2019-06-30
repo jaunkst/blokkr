@@ -7,5 +7,7 @@ import { Module, ClientService } from "@blokkr/core";
   exports: [ClientService]
 })
 export class CoreModule {
-  constructor() {}
+  constructor() {
+    console.log("CoreModule");
+  }
 }
