@@ -1,0 +1,7 @@
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "./node_modules/.bin/blok format"
+    }
+  }
+}
