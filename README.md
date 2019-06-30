@@ -62,6 +62,8 @@ yarn blok build --install
 
 🎉 Start minecraft and add the example addon to a new game.
 
+# CLI Docs
+
 ## Built With
 
 - [Yarn](https://github.com/yarnpkg/yarn) - 📦🐈 Fast, reliable, and secure dependency management

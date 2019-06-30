@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "devDependencies": {
-    "oao": "^1.6.0"
-  },
-  "dependencies": {}
+    "oao": "^1.6.0",
+    "prettier": "^1.18.2"
+  }
 }
