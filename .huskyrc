@@ -1,7 +1,5 @@
 {
-  "husky": {
-    "hooks": {
-      "pre-commit": "./node_modules/.bin/prettier --write"
-    }
+  "hooks": {
+    "pre-commit": "./node_modules/.bin/prettier --write 'packages/**/*.ts'" 
   }
 }
