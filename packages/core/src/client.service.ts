@@ -1,9 +1,9 @@
-import { Framework } from "../../index";
 import { Service } from "@blokkr/core";
 
+declare var __system__: IVanillaClientSystem;
 @Service()
 export class ClientService {
-  public system = Framework.system;
+  public system = __system__;
 
   constructor() {}
 

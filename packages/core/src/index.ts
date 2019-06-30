@@ -4,3 +4,4 @@ export * from "./module.decorator";
 export * from "./service.decorator";
 export * from "./observe.decorator";
 export * from "./colors";
+export * from "./client.service";

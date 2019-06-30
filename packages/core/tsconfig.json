@@ -10,7 +10,11 @@
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "types": [],
+    "types": [
+      "reflect-metadata",
+      "minecraft-scripting-types-client",
+      "minecraft-scripting-types-server"
+    ],
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "."

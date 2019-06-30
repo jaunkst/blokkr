@@ -1,6 +1,5 @@
 import "reflect-metadata";
-import { Module } from "@blokkr/core";
-import { ClientService } from "../index";
+import { Module, ClientService } from "@blokkr/core";
 
 @Module({
   imports: [],

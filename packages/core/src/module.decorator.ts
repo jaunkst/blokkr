@@ -1,11 +1,27 @@
 import "reflect-metadata";
 import { injectable, decorate } from "inversify";
-
 import {
   resolveContainerForModule,
   getOptionsForModule,
   setOptionsForModule
 } from "./utils";
+import { BehaviorSubject, Subscription, combineLatest } from "rxjs";
+import { filter as rxFilter, map as rxMap } from "rxjs/operators";
+
+console.log("MOMO");
+
+const initialize$ = new BehaviorSubject(false);
+const update$ = new BehaviorSubject(false);
+
+declare var __system__: IVanillaClientSystem;
+__system__.initialize = () => {
+  initialize$.next(true);
+};
+
+__system__.update = () => {
+  update$.next(true);
+};
+
 // Module Decorator
 export interface ModuleOptions {
   root?: boolean;
@@ -67,7 +83,32 @@ export function Module(options?: ModuleOptions) {
 
     // NOTE initialize bootstrap modules from target @Module
     _options.bootstrap.forEach(bootstrapModule => {
-      resolveContainerForModule(bootstrapModule).resolve(bootstrapModule);
+      const resolvedModule = resolveContainerForModule(bootstrapModule).resolve(
+        bootstrapModule
+      );
+      const initSub: Subscription = initialize$.subscribe(
+        (isInitialized: boolean) => {
+          if (isInitialized && (<any>resolvedModule).onInit) {
+            (<any>resolvedModule).onInit();
+            initSub.unsubscribe();
+          }
+        }
+      );
+
+      combineLatest([initialize$, update$])
+        .pipe(
+          rxFilter(([initialize, _update]) => {
+            return initialize;
+          }),
+          rxMap(([_initialize, update]) => {
+            return update;
+          })
+        )
+        .subscribe(_update => {
+          if ((<any>resolvedModule).onUpdate) {
+            (<any>resolvedModule).onUpdate();
+          }
+        });
     });
 
     // TODO initialize all other modules so that they can use module
