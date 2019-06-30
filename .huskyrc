@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "pre-commit": "./node_modules/.bin/prettier --write 'packages/**/*.ts'" 
+    "pre-commit": "yarn format:write" 
   }
 }

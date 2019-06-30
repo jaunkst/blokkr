@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "format:write": "./node_modules/.bin/prettier --write 'packages/**/*.ts'"
+  },
   "workspaces": [
     "packages/*"
   ],
