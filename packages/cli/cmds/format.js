@@ -5,6 +5,8 @@ exports.command = "format";
 exports.desc = "format project source";
 exports.builder = {};
 exports.handler = function(argv) {
+  process.stdout.write("Checking formatting...\n");
+
   const filePaths = walkSync(".", {
     globs: ["src/**/*.ts"],
     ignore: ["node_modules"]
@@ -26,10 +28,12 @@ exports.handler = function(argv) {
     formattedSourcePaths.forEach(filePath => {
       process.stdout.write(`${filePath}\n`);
     });
+    process.stdout.write("Code style issues fixed in the above file(s).\n");
+
     process.stdout.write(
       `✨ Formatted ${formattedSourcePaths.length} files.\n`
     );
   } else {
-    process.stdout.write(`✨ No files to format.\n`);
+    process.stdout.write(`✨ All files match code style!\n`);
   }
 };
