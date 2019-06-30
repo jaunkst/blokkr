@@ -4,7 +4,7 @@ import { ClientService } from "../index";
 
 @Module({
   imports: [],
-  declarations: [ClientService],
+  providers: [ClientService],
   exports: [ClientService]
 })
 export class CoreModule {

@@ -11,7 +11,7 @@ export interface ModuleOptions {
   root?: boolean;
   imports?: any[];
   exports?: any[];
-  declarations?: any[];
+  providers?: any[];
   bootstrap?: any[];
 }
 export function Module(options?: ModuleOptions) {
@@ -21,8 +21,7 @@ export function Module(options?: ModuleOptions) {
       {
         imports: [],
         modules: [],
-        declarations: [],
-        services: [],
+        providers: [],
         bootstrap: []
       },
       options
@@ -33,9 +32,9 @@ export function Module(options?: ModuleOptions) {
     const moduleContainer = resolveContainerForModule(target);
 
     // NOTE bind the target @Module declarations to the @Module container
-    _options.declarations.forEach(declaration => {
+    _options.providers.forEach(provider => {
       moduleContainer
-        .bind(declaration)
+        .bind(provider)
         .toSelf()
         .inSingletonScope();
     });
