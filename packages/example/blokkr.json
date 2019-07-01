@@ -1,5 +1,5 @@
 {
-  "$schema": "./blokkr.schema.json",
+  "$schema": "https://raw.githubusercontent.com/jaunkst/blokkr/master/packages/cli/blokkr.schema.json",
   "packs": {
     "behaviorPack": {
       "name": "Example Behavior Pack",
