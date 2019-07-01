@@ -62,6 +62,28 @@ yarn blok build --install
 
 🎉 Start minecraft and add the example addon to a new game.
 
+# Modules
+
+Modules register all services, and systems. Modules can be imported into other modules. Imported module services and systems are available to services, and systems in the target module.
+
+This should allow publishing of sytems and services to be consumed in an addon as a module bundle. The modules also allow the developer to seperate groups of services and systems by context.
+
+# Services
+
+Services can be injected into modules, services, and systems. Services can provide shared functionality and state.
+
+# Entities
+
+The entity is a general purpose object. Usually, it only consists of a unique id.
+
+# Components
+
+The raw data for one aspect of the object, and how it interacts with the world.
+
+# Systems
+
+Each System runs continuously and performs global actions on every Entity that possesses a Component of the same aspect as that System. Systems can have register sub systems.
+
 # CLI Docs
 
 ## Built With
