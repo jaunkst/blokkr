@@ -1,4 +1,5 @@
 {
+  "$schema": "./blokkr.schema.json",
   "packs": {
     "behaviorPack": {
       "name": "Example Behavior Pack",
