@@ -1,5 +1,5 @@
 import { injectable, decorate } from "inversify";
-import { setOptionsForTarget } from "./utils";
+import { setOptionsForTarget } from "../utils";
 
 class SystemDecorator {
   private target: any;

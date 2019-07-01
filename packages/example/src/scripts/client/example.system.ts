@@ -8,7 +8,7 @@ export class ExampleSystem implements OnInit, OnUpdate {
     console.log("ExampleSystem Contstructor");
   }
   onInit() {
-    console.log("onInit");
+    console.log("onInit", "foo", "bar");
   }
   onUpdate() {
     // console.log("onUpdate");

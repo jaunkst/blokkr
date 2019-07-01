@@ -9,7 +9,7 @@ const del = require("del");
 const polyfills = `
 const __system__ = client.registerSystem(0, 0);
 const console = {
-  log: function(data) {
+  log: function(...data) {
     let chatEventData = __system__.createEventData(
       "minecraft:display_chat_event"
     );

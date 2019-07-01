@@ -6,7 +6,7 @@ import {
   resolveContainerForTarget,
   getOptionsForTarget,
   setOptionsForTarget
-} from "./utils";
+} from "../utils";
 
 const initialize$ = new BehaviorSubject(false);
 const update$ = new BehaviorSubject(false);
