@@ -1,28 +1,27 @@
 {
-  "buildOptions": {
-    "copy": [
-      {
-        "from": "/src/manifest.json",
-        "to": "/dist/manifest.json"
+  "packs": {
+    "behaviorPack": {
+      "name": "Example Behavior Pack",
+      "client": {
+        "entry": "src/behaviors/scripts/client/client.ts",
+        "out": "dist/{packName}/scripts/client/client.ts"
       },
-      {
-        "from": "/src/pack_icon.png",
-        "to": "/dist/pack_icon.png"
-      }
-    ]
-  },
-  "projects": {
-    "client": {
-      "entry": "./src/scripts/client/client.ts",
-      "output": {
-        "path": "/dist/scripts/client"
-      }
-    },
-    "server": {
-      "entry": "./src/scripts/server/server.ts",
-      "output": {
-        "path": "/dist/scripts/server"
+      "server": {
+        "entry": "src/behaviors/scripts/server/server.ts",
+        "out": "dist/{packName}/scripts/client/client.ts"
       }
     }
+  },
+  "postBuild": {
+    "copy": [
+      {
+        "from": "src/behaviors/manifest.json",
+        "to": "dist/{packName}/manifest.json"
+      },
+      {
+        "from": "src/behaviors/pack_icon.png",
+        "to": "dist/{packName}/pack_icon.png"
+      }
+    ]
   }
 }

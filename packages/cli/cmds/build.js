@@ -3,19 +3,26 @@ const { resolve } = require("path");
 const { smart } = require("webpack-merge");
 const WebpackBar = require("webpackbar");
 const CopyPlugin = require("copy-webpack-plugin");
-const { readFileSync, writeFileSync } = require("fs");
+const { readFileSync, writeFileSync, existsSync } = require("fs");
 const del = require("del");
-const ProgressPlugin = require("webpack/lib/ProgressPlugin");
-const _cliProgress = require("cli-progress");
-const bar1 = new _cliProgress.Bar(
-  {},
-  {
-    format: "Compiling: {bar}" + "{percentage}%",
-    barCompleteChar: "\u2588",
-    barIncompleteChar: "\u2591"
-  }
+
+const clientSourcePath = resolve(
+  process.cwd(),
+  "dist",
+  "behaviors",
+  "scripts",
+  "client",
+  "client.js"
 );
-bar1.start(100, 0);
+
+const serverSourcePath = resolve(
+  process.cwd(),
+  "dist",
+  "behaviors",
+  "scripts",
+  "server",
+  "server.js"
+);
 
 const clientShims = `
 const __client__ = client.registerSystem(0, 0);
@@ -46,11 +53,15 @@ const console = {
 exports.command = "build";
 exports.desc = "build the minecraft addon";
 exports.builder = {
-  dir: {
-    default: "."
-  }
+  install: {}
 };
 exports.handler = function(argv) {
+  console.log(argv);
+
+  const blokkrConfig = JSON.parse(
+    readFileSync(resolve(process.cwd(), "blokkr.json"))
+  );
+
   function resolveTsconfigPathsToAlias({
     tsconfigPath = process.cwd() + "/tsconfig.json",
     webpackConfigBasePath = "./"
@@ -93,18 +104,10 @@ exports.handler = function(argv) {
     },
     optimization: {
       minimize: false
-    },
-    plugins: [
-      new ProgressPlugin((percentage, msg) => {
-        bar1.update(100 * percentage);
-        if (percentage >= 1) {
-          bar1.stop();
-        }
-        // console.log(percentage);
-      })
-    ]
+    }
   };
 
+  // TODO replace CopyPlugin
   const clientConfig = {
     name: "client",
     entry: "./src/behaviors/scripts/client/client.ts",
@@ -113,6 +116,10 @@ exports.handler = function(argv) {
       filename: "client.js"
     },
     plugins: [
+      new WebpackBar({
+        name: "Behavior Client",
+        color: "yellow"
+      }),
       new CopyPlugin([
         {
           from: process.cwd() + "/src/behaviors/manifest.json",
@@ -132,7 +139,13 @@ exports.handler = function(argv) {
     output: {
       path: process.cwd() + "/dist/behaviors/scripts/server",
       filename: "server.js"
-    }
+    },
+    plugins: [
+      new WebpackBar({
+        name: "Behavior Server",
+        color: "blue"
+      })
+    ]
   };
 
   const webpackConfig = [
@@ -146,30 +159,21 @@ exports.handler = function(argv) {
     if (err || stats.hasErrors()) {
       process.stderr.write(err);
     } else {
-      const clientSourcePath = resolve(
-        process.cwd(),
-        "dist",
-        "behaviors",
-        "scripts",
-        "client",
-        "client.js"
-      );
+      if (existsSync(clientSourcePath)) {
+        const clientSource = readFileSync(clientSourcePath);
+        writeFileSync(clientSourcePath, clientShims + clientSource);
+      }
 
-      const clientSource = readFileSync(clientSourcePath);
+      if (existsSync(serverSourcePath)) {
+        const serverSource = readFileSync(serverSourcePath);
+        writeFileSync(serverSourcePath, serverShims + serverSource);
+      }
 
-      writeFileSync(clientSourcePath, clientShims + clientSource);
-
-      // const serverSourcePath = resolve(
-      //   process.cwd(),
-      //   "dist",
-      //   "scripts",
-      //   "server",
-      //   "server.js"
-      // );
-
-      // const clientSource = readFileSync(clientSourcePath);
-
-      // writeFileSync(clientSourcePath, clientShims + clientSource);
+      if (argv.install) {
+        console.log("Installing...");
+        // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
+        // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
+      }
     }
   });
 };
