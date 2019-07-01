@@ -30,28 +30,24 @@
               }
             }
           }
-        },
-        "postBuild": {
-          "type": "object",
+        }
+      }
+    },
+    "postBuild": {
+      "type": "object",
+      "properties": {
+        "copy": {
+          "type": "array",
           "properties": {
-            "copy": {
-              "type": "array",
-              "properties": {
-                "from": {
-                  "type": "string"
-                },
-                "to": {
-                  "type": "string"
-                }
-              }
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
             }
           }
         }
       }
-    },
-    "outDir": {
-      "type": "string",
-      "description": "The path to install the mincraft addons"
     }
   }
 }

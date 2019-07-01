@@ -12,17 +12,5 @@
         "out": "dist/{packName}/scripts/client/client.ts"
       }
     }
-  },
-  "postBuild": {
-    "copy": [
-      {
-        "from": "src/behaviors/manifest.json",
-        "to": "dist/{packName}/manifest.json"
-      },
-      {
-        "from": "src/behaviors/pack_icon.png",
-        "to": "dist/{packName}/pack_icon.png"
-      }
-    ]
   }
 }
