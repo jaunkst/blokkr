@@ -11,6 +11,6 @@ export class ExampleSystem implements OnInit, OnUpdate {
     console.log("onInit");
   }
   onUpdate() {
-    console.log("onUpdate");
+    // console.log("onUpdate");
   }
 }
