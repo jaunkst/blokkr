@@ -5,16 +5,40 @@ const WebpackBar = require("webpackbar");
 const CopyPlugin = require("copy-webpack-plugin");
 const { readFileSync, writeFileSync } = require("fs");
 const del = require("del");
+const ProgressPlugin = require("webpack/lib/ProgressPlugin");
+const _cliProgress = require("cli-progress");
+const bar1 = new _cliProgress.Bar(
+  {},
+  {
+    format: "Compiling: {bar}" + "{percentage}%",
+    barCompleteChar: "\u2588",
+    barIncompleteChar: "\u2591"
+  }
+);
+bar1.start(100, 0);
 
-const polyfills = `
-const __system__ = client.registerSystem(0, 0);
+const clientShims = `
+const __client__ = client.registerSystem(0, 0);
 const console = {
   log: function(...data) {
-    let chatEventData = __system__.createEventData(
+    let chatEventData = __client__.createEventData(
       "minecraft:display_chat_event"
     );
     chatEventData.data.message = data;
-    __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
+    __client__.broadcastEvent("minecraft:display_chat_event", chatEventData);
+  }
+};
+`;
+
+const serverShims = `
+const __server__ = server.registerSystem(0, 0);
+const console = {
+  log: function(...data) {
+    let chatEventData = __server__.createEventData(
+      "minecraft:display_chat_event"
+    );
+    chatEventData.data.message = data;
+    __server__.broadcastEvent("minecraft:display_chat_event", chatEventData);
   }
 };
 `;
@@ -59,36 +83,44 @@ exports.handler = function(argv) {
         }
       ]
     },
-    stats: "none",
+    stats: {
+      errors: true,
+      errorDetails: true
+    },
     resolve: {
       extensions: [".ts", ".js"],
       alias: resolveTsconfigPathsToAlias()
     },
     optimization: {
       minimize: false
-    }
+    },
+    plugins: [
+      new ProgressPlugin((percentage, msg) => {
+        bar1.update(100 * percentage);
+        if (percentage >= 1) {
+          bar1.stop();
+        }
+        // console.log(percentage);
+      })
+    ]
   };
 
   const clientConfig = {
     name: "client",
-    entry: "./src/scripts/client/client.ts",
+    entry: "./src/behaviors/scripts/client/client.ts",
     output: {
-      path: process.cwd() + "/dist/scripts/client",
+      path: process.cwd() + "/dist/behaviors/scripts/client",
       filename: "client.js"
     },
     plugins: [
-      new WebpackBar({
-        name: "client",
-        color: "yellow"
-      }),
       new CopyPlugin([
         {
-          from: process.cwd() + "/src/manifest.json",
-          to: process.cwd() + "/dist/manifest.json"
+          from: process.cwd() + "/src/behaviors/manifest.json",
+          to: process.cwd() + "/dist/behaviors/manifest.json"
         },
         {
-          from: process.cwd() + "/src/pack_icon.png",
-          to: process.cwd() + "/dist/pack_icon.png"
+          from: process.cwd() + "/src/behaviors/pack_icon.png",
+          to: process.cwd() + "/dist/behaviors/pack_icon.png"
         }
       ])
     ]
@@ -96,17 +128,11 @@ exports.handler = function(argv) {
 
   var serverConfig = {
     name: "server",
-    entry: "./src/scripts/server/server.ts",
+    entry: "./src/behaviors/scripts/server/server.ts",
     output: {
-      path: process.cwd() + "/dist/scripts/server",
+      path: process.cwd() + "/dist/behaviors/scripts/server",
       filename: "server.js"
-    },
-    plugins: [
-      new WebpackBar({
-        name: "server",
-        color: "blue"
-      })
-    ]
+    }
   };
 
   const webpackConfig = [
@@ -123,6 +149,7 @@ exports.handler = function(argv) {
       const clientSourcePath = resolve(
         process.cwd(),
         "dist",
+        "behaviors",
         "scripts",
         "client",
         "client.js"
@@ -130,7 +157,19 @@ exports.handler = function(argv) {
 
       const clientSource = readFileSync(clientSourcePath);
 
-      writeFileSync(clientSourcePath, polyfills + clientSource);
+      writeFileSync(clientSourcePath, clientShims + clientSource);
+
+      // const serverSourcePath = resolve(
+      //   process.cwd(),
+      //   "dist",
+      //   "scripts",
+      //   "server",
+      //   "server.js"
+      // );
+
+      // const clientSource = readFileSync(clientSourcePath);
+
+      // writeFileSync(clientSourcePath, clientShims + clientSource);
     }
   });
 };

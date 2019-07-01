@@ -1,5 +1,5 @@
 import { Module, ClientService } from "@blokkr/core";
-import { CoreModule } from "@client/core";
+import { CoreModule } from "./core";
 import { ExampleSystem } from "./example.system";
 import { ExampleSubSystem } from "./subsystem-a.system";
 

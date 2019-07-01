@@ -16,6 +16,7 @@
     "@types/yargs": "^13.0.0"
   },
   "dependencies": {
+    "cli-progress": "^2.1.1",
     "copy-webpack-plugin": "^5.0.3",
     "del": "^4.1.1",
     "jest": "^24.8.0",

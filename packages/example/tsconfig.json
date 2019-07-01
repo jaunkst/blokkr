@@ -21,8 +21,8 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@client/*": ["src/scripts/client/*"],
-      "@server/*": ["src/scripts/server/*"]
+      "@client/*": ["src/behaviors/scripts/client/*"],
+      "@server/*": ["src/behaviors/scripts/server/*"]
     }
   },
   "typeRoots": ["./typings"],

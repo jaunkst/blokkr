@@ -1,9 +1,9 @@
 import { Service } from "@blokkr/core";
 
-declare var __system__: IVanillaClientSystem;
+declare var __client__: IVanillaClientSystem;
 @Service()
 export class ClientService {
-  public system = __system__;
+  public system = __client__;
 
   constructor() {
     console.log("IVanillaClientSystem");

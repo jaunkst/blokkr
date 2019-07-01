@@ -12,16 +12,16 @@ const initialize$ = new BehaviorSubject(false);
 const update$ = new BehaviorSubject(false);
 const shutdown$ = new Subject();
 
-declare var __system__: IVanillaClientSystem;
-__system__.initialize = () => {
+declare var __client__: IVanillaClientSystem;
+__client__.initialize = () => {
   initialize$.next(true);
 };
 
-__system__.update = () => {
+__client__.update = () => {
   update$.next(true);
 };
 
-__system__.shutdown = () => {
+__client__.shutdown = () => {
   shutdown$.next(true);
 };
 
