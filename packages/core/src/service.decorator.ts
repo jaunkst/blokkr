@@ -2,7 +2,11 @@ import { injectable, decorate } from "inversify";
 
 export function Service() {
   return (target: any) => {
-    decorate(injectable(), target);
+    try {
+      decorate(injectable(), target);
+    } catch (err) {
+      console.log(err);
+    }
     return target;
   };
 }

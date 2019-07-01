@@ -5,7 +5,9 @@ declare var __system__: IVanillaClientSystem;
 export class ClientService {
   public system = __system__;
 
-  constructor() {}
+  constructor() {
+    console.log("IVanillaClientSystem");
+  }
 
   public registerEventData(eventIdentifier: string, eventData: any): true {
     return this.system.registerEventData(eventIdentifier, eventData);

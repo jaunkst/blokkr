@@ -1,11 +1,14 @@
-import { Module, OnInit, OnUpdate, ClientService } from "@blokkr/core";
+import { Module, ClientService } from "@blokkr/core";
 import { CoreModule } from "@client/core";
+import { ExampleSystem } from "./example.system";
+import { ExampleSubSystem } from "./subsystem-a.system";
 
 @Module({
   imports: [CoreModule],
-  bootstrap: [ClientModule]
+  systems: [ExampleSystem, ExampleSubSystem],
+  bootstrap: [ExampleSystem]
 })
-class ClientModule implements OnInit, OnUpdate {
+class ClientModule {
   constructor(client: ClientService) {
     const scriptLoggerConfig = client.createEventData(
       "minecraft:script_logger_config"
@@ -18,13 +21,5 @@ class ClientModule implements OnInit, OnUpdate {
     let chatEventData = client.createEventData("minecraft:display_chat_event");
     chatEventData.data.message = "ClientService is working.";
     client.broadcastEvent("minecraft:display_chat_event", chatEventData);
-  }
-
-  public onInit(): void {
-    console.log("onInit");
-  }
-
-  public onUpdate(): void {
-    // console.log("onUpdate");
   }
 }

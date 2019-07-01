@@ -1,22 +1,16 @@
 import "reflect-metadata";
-import { injectable, decorate } from "inversify";
+import { injectable, decorate, Container } from "inversify";
+import { BehaviorSubject, Subscription, Subject } from "rxjs";
+import { takeUntil as rxTakeUntil } from "rxjs/operators";
 import {
-  resolveContainerForModule,
-  getOptionsForModule,
-  setOptionsForModule
+  resolveContainerForTarget,
+  getOptionsForTarget,
+  setOptionsForTarget
 } from "./utils";
-import { BehaviorSubject, Subscription, combineLatest } from "rxjs";
-import {
-  filter as rxFilter,
-  map as rxMap,
-  takeUntil as rxTakeUntil
-} from "rxjs/operators";
-
-console.log("MOMO");
 
 const initialize$ = new BehaviorSubject(false);
 const update$ = new BehaviorSubject(false);
-const shutdown$ = new BehaviorSubject(false);
+const shutdown$ = new Subject();
 
 declare var __system__: IVanillaClientSystem;
 __system__.initialize = () => {
@@ -31,101 +25,143 @@ __system__.shutdown = () => {
   shutdown$.next(true);
 };
 
-// Module Decorator
-export interface ModuleOptions {
-  root?: boolean;
+export interface IModuleOptions {
   imports?: any[];
   exports?: any[];
   providers?: any[];
   systems?: any[];
   bootstrap?: any[];
 }
-export function Module(options?: ModuleOptions) {
-  return (target: any) => {
-    const _options: ModuleOptions = (<any>Object).assign(
-      {},
-      {
-        imports: [],
-        modules: [],
-        providers: [],
-        systems: [],
-        bootstrap: []
-      },
-      options
-    );
+class ModuleDecorator {
+  private target: any;
+  private options: any = {
+    imports: [],
+    exports: [],
+    providers: [],
+    systems: [],
+    bootstrap: []
+  };
 
-    setOptionsForModule(target, options);
-    // NOTE get the container for the target @Module
-    const moduleContainer = resolveContainerForModule(target);
+  constructor(target: any, options: IModuleOptions) {
+    try {
+      this.options = Object.assign({}, this.options, options);
+      setOptionsForTarget(target, this.options);
+      this.target = target;
+      decorate(injectable(), this.target);
+      this.bindImports(this.options.imports);
+      this.bindProviders(this.options.providers);
+      this.bindSystems(this.options.systems);
+      this.resolveModule();
 
-    // NOTE bind the target @Module declarations to the @Module container
-    _options.providers.forEach(provider => {
-      moduleContainer
-        .bind(provider)
-        .toSelf()
-        .inSingletonScope();
-    });
-
-    // ANCHOR  A Angular style IoC module imports.
-    // this block looks at import modules and creates a new binding
-    // for the import modules exports
-    _options.imports.forEach(importModule => {
-      const importModuleOptions = getOptionsForModule(importModule);
-      return (<any>importModuleOptions).exports.forEach(
-        (exportDeclaration: any) => {
-          const importModuleContainer = resolveContainerForModule(importModule);
-          if (!moduleContainer.isBound(exportDeclaration)) {
-            moduleContainer.bind(exportDeclaration).toDynamicValue(context => {
-              return importModuleContainer.get(exportDeclaration);
-            });
-          }
+      const systems = this.bootstrapSystems(this.options.bootstrap);
+      const initSub: Subscription = initialize$.subscribe(isInitialized => {
+        if (isInitialized) {
+          initSub.unsubscribe();
+          this.visitSystems(systems, (system: any) => {
+            if (system.instance.onInit) {
+              system.instance.onInit();
+            }
+          });
         }
-      );
-    });
+      });
 
-    // NOTE make the target @injectable
-    decorate(injectable(), target);
-
-    // NOTE add the target to the @Module container
-    moduleContainer
-      .bind(target)
-      .toSelf()
-      .inSingletonScope();
-
-    // NOTE initialize bootstrap modules from target @Module
-    _options.bootstrap.forEach(bootstrapModule => {
-      const resolvedModule = resolveContainerForModule(bootstrapModule).resolve(
-        bootstrapModule
-      );
-      const initSub: Subscription = initialize$.subscribe(
-        (isInitialized: boolean) => {
-          if (isInitialized && (<any>resolvedModule).onInit) {
-            (<any>resolvedModule).onInit();
-            initSub.unsubscribe();
-          }
-        }
-      );
-
-      combineLatest([initialize$, update$])
-        .pipe(
-          rxTakeUntil(shutdown$),
-          rxFilter(([initialize, _update]) => {
-            return initialize;
-          }),
-          rxMap(([_initialize, update]) => {
-            return update;
-          })
-        )
-        .subscribe(_update => {
-          if ((<any>resolvedModule).onUpdate) {
-            (<any>resolvedModule).onUpdate();
+      update$.pipe(rxTakeUntil(shutdown$)).subscribe(() => {
+        this.visitSystems(systems, (system: any) => {
+          if (system.instance.onUpdate) {
+            system.instance.onUpdate();
           }
         });
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  public getTarget(): any {
+    return this.target;
+  }
+
+  private visitSystems(systems: any[], exec: Function): void {
+    try {
+      systems.forEach((system: any) => {
+        exec(system);
+        this.visitSystems(system.systems, exec);
+      });
+    } catch (err) {
+      console.log(`visitSystems: ${err}`);
+    }
+  }
+
+  private bindImports(imports: any[]): void {
+    try {
+      const container: Container = resolveContainerForTarget(this.target);
+      imports.forEach(importModule => {
+        const importModuleOptions = getOptionsForTarget(importModule);
+        return (<any>importModuleOptions).exports.forEach(
+          (exportDeclaration: any) => {
+            const importModuleContainer = resolveContainerForTarget(
+              importModule
+            );
+            if (!container.isBound(exportDeclaration)) {
+              container.bind(exportDeclaration).toDynamicValue(context => {
+                return importModuleContainer.get(exportDeclaration);
+              });
+            }
+          }
+        );
+      });
+    } catch (err) {
+      console.log(`bindImports: ${err}`);
+    }
+  }
+
+  private bindProviders(providerKlasses: any[]): void {
+    try {
+      const container: Container = resolveContainerForTarget(this.target);
+      providerKlasses.forEach(providerKlass => {
+        container
+          .bind(providerKlass)
+          .toSelf()
+          .inSingletonScope();
+      });
+    } catch (err) {
+      console.log(`bindProviders: ${err}`);
+    }
+  }
+
+  private bindSystems(systemKlasses: any[]): void {
+    try {
+      const container: Container = resolveContainerForTarget(this.target);
+      systemKlasses.forEach(systemKlass => {
+        container
+          .bind(systemKlass)
+          .toSelf()
+          .inSingletonScope();
+      });
+    } catch (err) {
+      console.log(`bindSystems: ${err}`);
+    }
+  }
+
+  private bootstrapSystems(systemKlasses: any[]): any[] {
+    const container: Container = resolveContainerForTarget(this.target);
+    return systemKlasses.map(systemKlass => {
+      const system = container.get(systemKlass);
+      const systemOptions: any = getOptionsForTarget(systemKlass);
+      return {
+        instance: system,
+        systems: this.bootstrapSystems(systemOptions.systems)
+      };
     });
+  }
 
-    // TODO initialize all other modules so that they can use module
-    // level constructors
-
-    return target;
+  private resolveModule(): void {
+    const container: Container = resolveContainerForTarget(this.target);
+    container.resolve(this.target);
+  }
+}
+export function Module(options?: IModuleOptions) {
+  return (target: any) => {
+    return new ModuleDecorator(target, options).getTarget();
   };
 }
