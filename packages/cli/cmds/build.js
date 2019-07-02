@@ -52,6 +52,27 @@ const console = {
 };
 `;
 
+function resolveTsconfigPathsToAlias({
+  tsconfigPath = process.cwd() + "/tsconfig.json",
+  webpackConfigBasePath = "./"
+} = {}) {
+  const { paths } = require(tsconfigPath).compilerOptions;
+
+  const aliases = {};
+
+  Object.keys(paths).forEach(item => {
+    const key = item.replace("/*", "");
+    const value = resolve(
+      webpackConfigBasePath,
+      paths[item][0].replace("/*", "")
+    );
+
+    aliases[key] = value;
+  });
+
+  return aliases;
+}
+
 exports.command = "build";
 exports.desc = "build the minecraft addon";
 exports.builder = {
@@ -101,14 +122,34 @@ exports.handler = function(argv) {
                 packName,
                 entry.output.path
               );
-              return R.merge(entry, {
-                plugins: [
-                  new WebpackBar({
-                    name: "Behavior Client",
-                    color: "yellow"
-                  })
-                ]
-              });
+
+              const sharedConfig = {
+                watch: false,
+                module: {
+                  rules: [
+                    {
+                      test: /\.ts/,
+                      use: "ts-loader",
+                      exclude: /node_modules/
+                    }
+                  ]
+                },
+                stats: {
+                  errors: true,
+                  errorDetails: true
+                },
+                resolve: {
+                  extensions: [".ts", ".js"],
+                  alias: resolveTsconfigPathsToAlias()
+                },
+                optimization: {
+                  minimize: false
+                }
+              };
+
+              // const webpackConfig = R.merge(sharedConfig, build.webpack);
+
+              return R.merge(sharedConfig, entry);
             }, blokkrModule.build)
           };
         } else {
@@ -210,30 +251,6 @@ exports.handler = function(argv) {
   //   return aliases;
   // }
 
-  // const sharedConfig = {
-  //   watch: false,
-  //   module: {
-  //     rules: [
-  //       {
-  //         test: /\.ts/,
-  //         use: "ts-loader",
-  //         exclude: /node_modules/
-  //       }
-  //     ]
-  //   },
-  //   stats: {
-  //     errors: true,
-  //     errorDetails: true
-  //   },
-  //   resolve: {
-  //     extensions: [".ts", ".js"],
-  //     alias: resolveTsconfigPathsToAlias()
-  //   },
-  //   optimization: {
-  //     minimize: false
-  //   }
-  // };
-
   // // TODO replace CopyPlugin
   // const clientConfig = {
   //   name: "client",
@@ -280,12 +297,17 @@ exports.handler = function(argv) {
   //   smart(sharedConfig, serverConfig)
   // ];
 
-  // del.sync([process.cwd() + "/dist"]);
-  console.log(JSON.stringify(packConfigs, null, 2));
+  del.sync([process.cwd() + "/dist"]);
 
   packConfigs.forEach(packConfig => {
     packConfig.builds.forEach(build => {
       if (build.webpack) {
+        build.webpack.plugins = [
+          new WebpackBar({
+            name: "Behavior Client",
+            color: "yellow"
+          })
+        ];
         webpack(build.webpack, (err, stats) => {
           if (err || stats.hasErrors()) {
             process.stderr.write(err);
@@ -308,28 +330,4 @@ exports.handler = function(argv) {
       }
     });
   });
-  // buildConfigs.forEach(config => {
-  //   if (config.webpack) {
-  //     console.log(config.webpack);
-  //     // webpack(config.webpack, (err, stats) => {
-  //     //   if (err || stats.hasErrors()) {
-  //     //     process.stderr.write(err);
-  //     //   } else {
-  //     //     // if (existsSync(clientSourcePath)) {
-  //     //     //   const clientSource = readFileSync(clientSourcePath);
-  //     //     //   writeFileSync(clientSourcePath, clientShims + clientSource);
-  //     //     // }
-  //     //     // if (existsSync(serverSourcePath)) {
-  //     //     //   const serverSource = readFileSync(serverSourcePath);
-  //     //     //   writeFileSync(serverSourcePath, serverShims + serverSource);
-  //     //     // }
-  //     //     // if (argv.install) {
-  //     //     //   console.log("Installing...");
-  //     //     //   // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
-  //     //     //   // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
-  //     //     // }
-  //     //   }
-  //     // });
-  //   }
-  // });
 };
