@@ -1,16 +1,34 @@
 {
-  "$schema": "https://raw.githubusercontent.com/jaunkst/blokkr/master/packages/cli/blokkr.schema.json",
-  "packs": {
-    "behaviorPack": {
-      "name": "Example Behavior Pack",
-      "client": {
-        "entry": "src/behaviors/scripts/client/client.ts",
-        "out": "dist/{packName}/scripts/client/client.ts"
-      },
-      "server": {
-        "entry": "src/behaviors/scripts/server/server.ts",
-        "out": "dist/{packName}/scripts/client/client.ts"
-      }
+  "buildOptions": {
+    "outDir": "dist"
+  },
+  "packs": [
+    {
+      "manifest": "src/behaviors/manifest.json",
+      "icon": "src/behaviors/pack_icon.png",
+      "outDir": "dist",
+      "system": [0, 0],
+      "modules": [
+        {
+          "uuid": "80a19e9a-875c-4941-8383-b8457478667c",
+          "build": [
+            {
+              "entry": "src/behaviors/scripts/client/client.ts",
+              "output": {
+                "path": "scripts/client",
+                "filename": "client.js"
+              }
+            },
+            {
+              "entry": "src/behaviors/scripts/server/server.ts",
+              "output": {
+                "path": "scripts/server",
+                "filename": "server.js"
+              }
+            }
+          ]
+        }
+      ]
     }
-  }
+  ]
 }
