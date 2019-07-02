@@ -86,116 +86,236 @@ exports.builder = {
   }
 };
 exports.handler = function(argv) {
-  const colors = ["yellow", "blue", "green", "red"];
-  const _blokkrConfig = JSON.parse(
+  const blokkrConfig = JSON.parse(
     readFileSync(resolve(process.cwd(), "blokkr.json"), "utf8")
   );
+  const outDir = blokkrConfig.buildOptions.outDir;
+  const colors = ["yellow", "blue", "green", "red"];
 
-  const packConfigs = _blokkrConfig.packs.map(pack => {
-    const manifestPath = resolve(process.cwd(), pack.manifest);
-    const manifest = JSON.parse(
-      readFileSync(resolve(process.cwd(), pack.manifest), "utf8")
+  if (R.hasPath(["packs", "behaviorPack"], blokkrConfig)) {
+    const manifestPath = R.path(
+      ["packs", "behaviorPack", "manifest"],
+      blokkrConfig
     );
+
+    const sharedConfig = {
+      watch: false,
+      module: {
+        rules: [
+          {
+            test: /\.ts/,
+            use: "ts-loader",
+            exclude: /node_modules/
+          }
+        ]
+      },
+      stats: {
+        errors: true,
+        errorDetails: true
+      },
+      resolve: {
+        extensions: [".ts", ".js"],
+        alias: resolveTsconfigPathsToAlias()
+      },
+      optimization: {
+        minimize: false
+      }
+    };
+
+    const manifest = JSON.parse(
+      readFileSync(resolve(process.cwd(), manifestPath), "utf8")
+    );
+
     const packName = R.toLower(
       [
-        manifest.header.name.split(" ").join("_"),
-        manifest.header.version.join(".")
+        R.path(["header", "name"], manifest)
+          .split(" ")
+          .join("_"),
+        R.path(["header", "version"], manifest).join(".")
       ].join("_")
     );
-    const outDir = _blokkrConfig.buildOptions.outDir;
+    const modules = R.path(["packs", "behaviorPack", "modules"], blokkrConfig);
 
-    return {
-      packName,
-      builds: R.map(blokkrModule => {
-        const manifestModule = R.find(_manifestModule => {
-          return blokkrModule.uuid === _manifestModule.uuid;
-        }, manifest.modules);
+    const webpackConfig = [];
+    if (R.hasPath(["clientData"], modules)) {
+      const clientData = R.path(["clientData"], modules);
+      if (R.hasPath(["build", "client"], clientData)) {
+        const clientConfig = R.path(["build", "client"], clientData);
+        clientConfig.entry = resolve(process.cwd(), clientConfig.entry);
+        clientConfig.output.path = resolve(
+          process.cwd(),
+          outDir,
+          packName,
+          clientConfig.output.path
+        );
 
-        if (manifestModule.type === "client_data") {
-          return {
-            type: "client_data",
-            webpack: R.map(entry => {
-              entry.entry = resolve(process.cwd(), entry.entry);
-              entry.output.path = resolve(
-                process.cwd(),
-                outDir,
-                packName,
-                entry.output.path
-              );
-
-              const sharedConfig = {
-                watch: false,
-                module: {
-                  rules: [
-                    {
-                      test: /\.ts/,
-                      use: "ts-loader",
-                      exclude: /node_modules/
-                    }
-                  ]
-                },
-                stats: {
-                  errors: true,
-                  errorDetails: true
-                },
-                resolve: {
-                  extensions: [".ts", ".js"],
-                  alias: resolveTsconfigPathsToAlias()
-                },
-                optimization: {
-                  minimize: false
-                }
-              };
-
-              return R.merge(R.merge(sharedConfig, entry), {
-                plugins: [
-                  new WebpackBar({
-                    name: entry.name,
-                    color: colors.shift()
-                  })
-                ]
-              });
-            }, blokkrModule.build)
-          };
-        } else {
-          return [];
-        }
-      }, pack.modules)
-    };
-  });
-
-  del.sync([process.cwd() + "/dist"]);
-
-  const webpackConfig = R.flatten(
-    R.map(
-      entry => entry.webpack,
-      R.flatten(
-        packConfigs.map(packConfig => {
-          return packConfig.builds.filter(build => {
-            return build.webpack;
-          });
-        })
-      )
-    )
-  );
-
-  webpack(webpackConfig, (err, stats) => {
-    if (err || stats.hasErrors()) {
-      process.stderr.write(err);
-    } else {
-      // if (existsSync(clientSourcePath)) {
-      //   const clientSource = readFileSync(clientSourcePath);
-      //   writeFileSync(clientSourcePath, clientShims + clientSource);
-      // }
-      // if (existsSync(serverSourcePath)) {
-      //   const serverSource = readFileSync(serverSourcePath);
-      //   writeFileSync(serverSourcePath, serverShims + serverSource);
-      // }
-      // if (argv.install) {
-      //   console.log("Installing...");
-      //   // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
-      //   // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
-      // }
+        webpackConfig.push(
+          R.mergeAll([
+            sharedConfig,
+            clientConfig,
+            {
+              plugins: [
+                new WebpackBar({
+                  name: "Client",
+                  color: "blue"
+                })
+              ]
+            }
+          ])
+        );
+      }
+      if (R.hasPath(["build", "server"], clientData)) {
+        const serverConfig = R.path(["build", "server"], clientData);
+        serverConfig.entry = resolve(process.cwd(), serverConfig.entry);
+        serverConfig.output.path = resolve(
+          process.cwd(),
+          outDir,
+          packName,
+          serverConfig.output.path
+        );
+        webpackConfig.push(
+          R.mergeAll([
+            sharedConfig,
+            serverConfig,
+            {
+              plugins: [
+                new WebpackBar({
+                  name: "Server",
+                  color: "yellow"
+                })
+              ]
+            }
+          ])
+        );
+      }
     }
-  });
+
+    webpack(webpackConfig, (err, stats) => {
+      if (err || stats.hasErrors()) {
+        process.stderr.write(err);
+      } else {
+        // if (existsSync(clientSourcePath)) {
+        //   const clientSource = readFileSync(clientSourcePath);
+        //   writeFileSync(clientSourcePath, clientShims + clientSource);
+        // }
+        // if (existsSync(serverSourcePath)) {
+        //   const serverSource = readFileSync(serverSourcePath);
+        //   writeFileSync(serverSourcePath, serverShims + serverSource);
+        // }
+        // if (argv.install) {
+        //   console.log("Installing...");
+        //   // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
+        //   // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
+        // }
+      }
+    });
+  }
+
+  // const packConfigs = _blokkrConfig.packs.map(pack => {
+  //   const manifestPath = resolve(process.cwd(), pack.manifest);
+  //   const manifest = JSON.parse(
+  //     readFileSync(resolve(process.cwd(), pack.manifest), "utf8")
+  //   );
+  //   const packName = R.toLower(
+  //     [
+  //       manifest.header.name.split(" ").join("_"),
+  //       manifest.header.version.join(".")
+  //     ].join("_")
+  //   );
+  //   const outDir = _blokkrConfig.buildOptions.outDir;
+
+  //   return {
+  //     packName,
+  //     builds: R.map(blokkrModule => {
+  //       const manifestModule = R.find(_manifestModule => {
+  //         return blokkrModule.uuid === _manifestModule.uuid;
+  //       }, manifest.modules);
+
+  //       if (manifestModule.type === "client_data") {
+  //         return {
+  //           type: "client_data",
+  //           webpack: R.map(entry => {
+  //             entry.entry = resolve(process.cwd(), entry.entry);
+  //             entry.output.path = resolve(
+  //               process.cwd(),
+  //               outDir,
+  //               packName,
+  //               entry.output.path
+  //             );
+
+  //             const sharedConfig = {
+  //               watch: false,
+  //               module: {
+  //                 rules: [
+  //                   {
+  //                     test: /\.ts/,
+  //                     use: "ts-loader",
+  //                     exclude: /node_modules/
+  //                   }
+  //                 ]
+  //               },
+  //               stats: {
+  //                 errors: true,
+  //                 errorDetails: true
+  //               },
+  //               resolve: {
+  //                 extensions: [".ts", ".js"],
+  //                 alias: resolveTsconfigPathsToAlias()
+  //               },
+  //               optimization: {
+  //                 minimize: false
+  //               }
+  //             };
+
+  //             return R.merge(R.merge(sharedConfig, entry), {
+  //               plugins: [
+  //                 new WebpackBar({
+  //                   name: entry.name,
+  //                   color: colors.shift()
+  //                 })
+  //               ]
+  //             });
+  //           }, blokkrModule.build)
+  //         };
+  //       } else {
+  //         return [];
+  //       }
+  //     }, pack.modules)
+  //   };
+  // });
+
+  // del.sync([process.cwd() + "/dist"]);
+
+  // const webpackConfig = R.flatten(
+  //   R.map(
+  //     entry => entry.webpack,
+  //     R.flatten(
+  //       packConfigs.map(packConfig => {
+  //         return packConfig.builds.filter(build => {
+  //           return build.webpack;
+  //         });
+  //       })
+  //     )
+  //   )
+  // );
+
+  // webpack(webpackConfig, (err, stats) => {
+  //   if (err || stats.hasErrors()) {
+  //     process.stderr.write(err);
+  //   } else {
+  //     // if (existsSync(clientSourcePath)) {
+  //     //   const clientSource = readFileSync(clientSourcePath);
+  //     //   writeFileSync(clientSourcePath, clientShims + clientSource);
+  //     // }
+  //     // if (existsSync(serverSourcePath)) {
+  //     //   const serverSource = readFileSync(serverSourcePath);
+  //     //   writeFileSync(serverSourcePath, serverShims + serverSource);
+  //     // }
+  //     // if (argv.install) {
+  //     //   console.log("Installing...");
+  //     //   // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
+  //     //   // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
+  //     // }
+  //   }
+  // });
 };

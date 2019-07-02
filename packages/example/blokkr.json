@@ -2,35 +2,31 @@
   "buildOptions": {
     "outDir": "dist"
   },
-  "packs": [
-    {
+  "packs": {
+    "behaviorPack": {
       "manifest": "src/behaviors/manifest.json",
       "icon": "src/behaviors/pack_icon.png",
-      "outDir": "dist",
       "system": [0, 0],
-      "modules": [
-        {
-          "uuid": "80a19e9a-875c-4941-8383-b8457478667c",
-          "build": [
-            {
-              "name": "client",
+      "modules": {
+        "clientData": {
+          "build": {
+            "client": {
               "entry": "src/behaviors/scripts/client/client.ts",
               "output": {
                 "path": "scripts/client",
                 "filename": "client.js"
               }
             },
-            {
-              "name": "server",
+            "server": {
               "entry": "src/behaviors/scripts/server/server.ts",
               "output": {
                 "path": "scripts/server",
                 "filename": "server.js"
               }
             }
-          ]
+          }
         }
-      ]
+      }
     }
-  ]
+  }
 }
