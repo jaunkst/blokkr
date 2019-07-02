@@ -1,3 +1,5 @@
+// https://webpack.js.org/api/node/
+
 const webpack = require("webpack");
 const { resolve, join } = require("path");
 const { smart } = require("webpack-merge");
@@ -7,24 +9,6 @@ const { readFileSync, writeFileSync, existsSync } = require("fs");
 const del = require("del");
 const expand = require("expand-template")();
 const R = require("ramda");
-
-const clientSourcePath = resolve(
-  process.cwd(),
-  "dist",
-  "behaviors",
-  "scripts",
-  "client",
-  "client.js"
-);
-
-const serverSourcePath = resolve(
-  process.cwd(),
-  "dist",
-  "behaviors",
-  "scripts",
-  "server",
-  "server.js"
-);
 
 const clientShims = `
 const __client__ = client.registerSystem(0, 0);
@@ -92,6 +76,7 @@ exports.handler = function(argv) {
     readFileSync(resolve(process.cwd(), "blokkr.json"), "utf8")
   );
   const outDir = blokkrConfig.buildOptions.outDir;
+  const colors = ["yellow", "blue", "green", "red"];
 
   if (R.hasPath(["packs", "behaviorPack"], blokkrConfig)) {
     const manifestPath = R.path(
@@ -101,6 +86,7 @@ exports.handler = function(argv) {
 
     const sharedConfig = {
       watch: false,
+      // mode: "production",
       module: {
         rules: [
           {
@@ -110,10 +96,7 @@ exports.handler = function(argv) {
           }
         ]
       },
-      stats: {
-        errors: true,
-        errorDetails: true
-      },
+      stats: "minimal",
       resolve: {
         extensions: [".ts", ".js"],
         alias: resolveTsconfigPathsToAlias()
@@ -138,18 +121,22 @@ exports.handler = function(argv) {
     const modules = R.path(["packs", "behaviorPack", "modules"], blokkrConfig);
 
     const webpackConfig = [];
+    const outputPaths = [];
     if (R.hasPath(["clientData"], modules)) {
       const clientData = R.path(["clientData"], modules);
       if (R.hasPath(["build", "client"], clientData)) {
         const clientConfig = R.path(["build", "client"], clientData);
         clientConfig.entry = resolve(process.cwd(), clientConfig.entry);
-        clientConfig.output.path = resolve(
+        clientOutPath = resolve(
           process.cwd(),
           outDir,
           packName,
           clientConfig.output.path
         );
-
+        clientConfig.output.path = clientOutPath;
+        outputPaths.push({
+          clientSourcePath: join(clientOutPath, clientConfig.output.filename)
+        });
         webpackConfig.push(
           R.mergeAll([
             sharedConfig,
@@ -158,7 +145,8 @@ exports.handler = function(argv) {
               plugins: [
                 new WebpackBar({
                   name: "Client",
-                  color: "blue"
+                  color: "blue",
+                  profile: true
                 })
               ]
             }
@@ -168,12 +156,16 @@ exports.handler = function(argv) {
       if (R.hasPath(["build", "server"], clientData)) {
         const serverConfig = R.path(["build", "server"], clientData);
         serverConfig.entry = resolve(process.cwd(), serverConfig.entry);
-        serverConfig.output.path = resolve(
+        serverOutPath = resolve(
           process.cwd(),
           outDir,
           packName,
           serverConfig.output.path
         );
+        serverConfig.output.path = serverOutPath;
+        outputPaths.push({
+          serverSourcePath: join(serverOutPath, serverConfig.output.filename)
+        });
         webpackConfig.push(
           R.mergeAll([
             sharedConfig,
@@ -182,7 +174,8 @@ exports.handler = function(argv) {
               plugins: [
                 new WebpackBar({
                   name: "Server",
-                  color: "yellow"
+                  color: "yellow",
+                  profile: true
                 })
               ]
             }
@@ -191,23 +184,42 @@ exports.handler = function(argv) {
       }
     }
 
-    webpack(webpackConfig, (err, stats) => {
-      if (err || stats.hasErrors()) {
+    webpack(webpackConfig, (err, multiStats) => {
+      if (err || multiStats.hasErrors()) {
         process.stderr.write(err);
       } else {
-        // if (existsSync(clientSourcePath)) {
-        //   const clientSource = readFileSync(clientSourcePath);
-        //   writeFileSync(clientSourcePath, clientShims + clientSource);
-        // }
-        // if (existsSync(serverSourcePath)) {
-        //   const serverSource = readFileSync(serverSourcePath);
-        //   writeFileSync(serverSourcePath, serverShims + serverSource);
-        // }
-        // if (argv.install) {
-        //   console.log("Installing...");
-        //   // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
-        //   // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
-        // }
+        // multiStats.stats.forEach(stats => {
+        //   console.log(stats.compilation);
+        //   // stats.compilation.warnings.forEach(warning => {
+        //   //   // console.log(warning);
+        //   // });
+        // });
+        // process.stdout.write(multiStats.toString({ colors: true }) + "\n");
+
+        // console.log(multiStats);
+
+        outputPaths.forEach(outputPath => {
+          if (existsSync(outputPath.clientSourcePath)) {
+            const clientSource = readFileSync(outputPath.clientSourcePath);
+            writeFileSync(
+              outputPath.clientSourcePath,
+              clientShims + clientSource
+            );
+          }
+          if (existsSync(outputPath.serverSourcePath)) {
+            const serverSource = readFileSync(outputPath.serverSourcePath);
+            writeFileSync(
+              outputPath.serverSourcePath,
+              serverShims + serverSource
+            );
+          }
+        });
+
+        if (argv.install) {
+          console.log("Installing...");
+          // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
+          // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
+        }
       }
     });
   }
