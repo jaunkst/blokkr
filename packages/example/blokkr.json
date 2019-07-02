@@ -13,6 +13,7 @@
           "uuid": "80a19e9a-875c-4941-8383-b8457478667c",
           "build": [
             {
+              "name": "client",
               "entry": "src/behaviors/scripts/client/client.ts",
               "output": {
                 "path": "scripts/client",
@@ -20,6 +21,7 @@
               }
             },
             {
+              "name": "server",
               "entry": "src/behaviors/scripts/server/server.ts",
               "output": {
                 "path": "scripts/server",
