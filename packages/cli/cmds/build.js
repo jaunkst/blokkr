@@ -4,11 +4,31 @@ const webpack = require("webpack");
 const { resolve, join } = require("path");
 const { smart } = require("webpack-merge");
 const WebpackBar = require("webpackbar");
-const CopyPlugin = require("copy-webpack-plugin");
 const { readFileSync, writeFileSync, existsSync } = require("fs");
 const del = require("del");
 const expand = require("expand-template")();
 const R = require("ramda");
+var Multiprogress = require("multi-progress");
+var multi = new Multiprogress(process.stderr);
+const chalk = require("chalk");
+
+function createProgressBar(name, color) {
+  const progressBar = multi.newBar(`${chalk[color].bold(name)}▕:bar▏:percent`, {
+    complete: `${chalk[color]("█")}`,
+    incomplete: " ",
+    width: 30,
+    total: 100
+  });
+
+  return new webpack.ProgressPlugin({
+    entries: true,
+    modules: true,
+    profile: true,
+    handler: (percentage, message, ...args) => {
+      progressBar.tick(100 * percentage, { percentage, message });
+    }
+  });
+}
 
 const clientShims = `
 const __client__ = client.registerSystem(0, 0);
@@ -76,8 +96,6 @@ exports.handler = function(argv) {
     readFileSync(resolve(process.cwd(), "blokkr.json"), "utf8")
   );
   const outDir = blokkrConfig.buildOptions.outDir;
-  const colors = ["yellow", "blue", "green", "red"];
-
   if (R.hasPath(["packs", "behaviorPack"], blokkrConfig)) {
     const manifestPath = R.path(
       ["packs", "behaviorPack", "manifest"],
@@ -122,6 +140,7 @@ exports.handler = function(argv) {
 
     const webpackConfig = [];
     const outputPaths = [];
+    let buildWarnings = [];
     if (R.hasPath(["clientData"], modules)) {
       const clientData = R.path(["clientData"], modules);
       if (R.hasPath(["build", "client"], clientData)) {
@@ -142,13 +161,7 @@ exports.handler = function(argv) {
             sharedConfig,
             clientConfig,
             {
-              plugins: [
-                new WebpackBar({
-                  name: "Client",
-                  color: "blue",
-                  profile: true
-                })
-              ]
+              plugins: [createProgressBar("Behavior Client", "yellow")]
             }
           ])
         );
@@ -171,13 +184,7 @@ exports.handler = function(argv) {
             sharedConfig,
             serverConfig,
             {
-              plugins: [
-                new WebpackBar({
-                  name: "Server",
-                  color: "yellow",
-                  profile: true
-                })
-              ]
+              plugins: [createProgressBar("Behavior Server", "blue")]
             }
           ])
         );
@@ -185,19 +192,17 @@ exports.handler = function(argv) {
     }
 
     webpack(webpackConfig, (err, multiStats) => {
-      if (err || multiStats.hasErrors()) {
+      console.log("\n\n");
+      if (err) {
         process.stderr.write(err);
+        process.exit(1);
+      } else if (multiStats.hasErrors()) {
+        multiStats.stats.forEach(stat => {
+          const error = R.head(stat.compilation.errors);
+          process.stderr.write(error.message);
+          process.exit(1);
+        });
       } else {
-        // multiStats.stats.forEach(stats => {
-        //   console.log(stats.compilation);
-        //   // stats.compilation.warnings.forEach(warning => {
-        //   //   // console.log(warning);
-        //   // });
-        // });
-        // process.stdout.write(multiStats.toString({ colors: true }) + "\n");
-
-        // console.log(multiStats);
-
         outputPaths.forEach(outputPath => {
           if (existsSync(outputPath.clientSourcePath)) {
             const clientSource = readFileSync(outputPath.clientSourcePath);
