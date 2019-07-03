@@ -1,0 +1,18 @@
+{
+  "name": "blokkr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "format:write": "./node_modules/.bin/prettier --write 'packages/**/*.ts'"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "husky": "^3.0.0-0",
+    "oao": "^1.6.0",
+    "prettier": "^1.18.2"
+  }
+}
