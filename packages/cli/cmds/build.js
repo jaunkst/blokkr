@@ -148,26 +148,14 @@ exports.handler = function(argv) {
     deferredMethods.push(() => {
       copySync(
         join(process.cwd(), manifestPath),
-        join(
-          process.cwd(),
-          outDir,
-          packName,
-          "behavior_packs",
-          basename(manifestPath)
-        )
+        join(process.cwd(), outDir, packName, basename(manifestPath))
       );
     });
 
     deferredMethods.push(() => {
       copySync(
         join(process.cwd(), iconPath),
-        join(
-          process.cwd(),
-          outDir,
-          packName,
-          "behavior_packs",
-          basename(iconPath)
-        )
+        join(process.cwd(), outDir, packName, basename(iconPath))
       );
     });
     // copySync(manifestPath, join(process.cwd(), outDir, packName));
@@ -185,7 +173,6 @@ exports.handler = function(argv) {
           process.cwd(),
           outDir,
           packName,
-          "behavior_packs",
           clientConfig.output.path
         );
         clientConfig.output.path = clientOutPath;
@@ -209,7 +196,6 @@ exports.handler = function(argv) {
           process.cwd(),
           outDir,
           packName,
-          "behavior_packs",
           serverConfig.output.path
         );
         serverConfig.output.path = serverOutPath;
