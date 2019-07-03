@@ -1,4 +1,4 @@
-import { Service } from "@blokkr/core";
+import { Service } from "../decorators/service.decorator";
 
 declare var __system__: IVanillaClientSystem;
 @Service()

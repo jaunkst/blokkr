@@ -90,7 +90,9 @@ exports.builder = {
   }
 };
 exports.handler = function(argv) {
-  del.sync([process.cwd() + "/dist"]);
+  if (existsSync(join(process.cwd(), "/dist"))) {
+    del.sync([process.cwd() + "/dist"]);
+  }
 
   const blokkrConfig = JSON.parse(
     readFileSync(resolve(process.cwd(), "blokkr.json"), "utf8")
@@ -116,7 +118,6 @@ exports.handler = function(argv) {
           }
         ]
       },
-      stats: "minimal",
       resolve: {
         extensions: [".ts", ".js"],
         alias: resolveTsconfigPathsToAlias()
@@ -245,22 +246,27 @@ exports.handler = function(argv) {
       }
     });
 
-    webpack(webpackConfig, (err, multiStats) => {
-      process.stdout.write("\n\n");
-      if (err) {
-        process.stderr.write(err);
-        process.exit(1);
-      } else if (multiStats.hasErrors()) {
-        multiStats.stats.forEach(stat => {
-          const error = R.head(stat.compilation.errors);
-          process.stderr.write(error.message);
+    try {
+      webpack(webpackConfig, (err, multiStats) => {
+        process.stdout.write("\n\n");
+        if (err) {
+          process.stderr.write(err);
           process.exit(1);
-        });
-      } else {
-        postWebpackJobs.forEach(run => {
-          run();
-        });
-      }
-    });
+        } else if (multiStats.hasErrors()) {
+          multiStats.stats.forEach(stat => {
+            console.log(stat);
+            const error = R.head(stat.compilation.errors);
+            process.stderr.write(error.message);
+            process.exit(1);
+          });
+        } else {
+          // postWebpackJobs.forEach(run => {
+          //   run();
+          // });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 };
