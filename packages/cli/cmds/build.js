@@ -1,16 +1,21 @@
 // https://webpack.js.org/api/node/
 
 const webpack = require("webpack");
-const { resolve, join } = require("path");
+const { resolve, join, basename } = require("path");
 const { smart } = require("webpack-merge");
-const WebpackBar = require("webpackbar");
-const { readFileSync, writeFileSync, existsSync } = require("fs");
+const {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  copySync
+} = require("fs-extra");
 const del = require("del");
 const expand = require("expand-template")();
 const R = require("ramda");
 var Multiprogress = require("multi-progress");
 var multi = new Multiprogress(process.stderr);
 const chalk = require("chalk");
+const homedir = require("os").homedir();
 
 function createProgressBar(name, color) {
   const progressBar = multi.newBar(`${chalk[color].bold(name)}▕:bar▏:percent`, {
@@ -96,11 +101,14 @@ exports.handler = function(argv) {
     readFileSync(resolve(process.cwd(), "blokkr.json"), "utf8")
   );
   const outDir = blokkrConfig.buildOptions.outDir;
+  const deferredMethods = [];
   if (R.hasPath(["packs", "behaviorPack"], blokkrConfig)) {
     const manifestPath = R.path(
       ["packs", "behaviorPack", "manifest"],
       blokkrConfig
     );
+
+    const iconPath = R.path(["packs", "behaviorPack", "icon"], blokkrConfig);
 
     const sharedConfig = {
       watch: false,
@@ -136,11 +144,38 @@ exports.handler = function(argv) {
         R.path(["header", "version"], manifest).join(".")
       ].join("_")
     );
+
+    deferredMethods.push(() => {
+      copySync(
+        join(process.cwd(), manifestPath),
+        join(
+          process.cwd(),
+          outDir,
+          packName,
+          "behavior_packs",
+          basename(manifestPath)
+        )
+      );
+    });
+
+    deferredMethods.push(() => {
+      copySync(
+        join(process.cwd(), iconPath),
+        join(
+          process.cwd(),
+          outDir,
+          packName,
+          "behavior_packs",
+          basename(iconPath)
+        )
+      );
+    });
+    // copySync(manifestPath, join(process.cwd(), outDir, packName));
+
     const modules = R.path(["packs", "behaviorPack", "modules"], blokkrConfig);
 
     const webpackConfig = [];
     const outputPaths = [];
-    let buildWarnings = [];
     if (R.hasPath(["clientData"], modules)) {
       const clientData = R.path(["clientData"], modules);
       if (R.hasPath(["build", "client"], clientData)) {
@@ -150,6 +185,7 @@ exports.handler = function(argv) {
           process.cwd(),
           outDir,
           packName,
+          "behavior_packs",
           clientConfig.output.path
         );
         clientConfig.output.path = clientOutPath;
@@ -173,6 +209,7 @@ exports.handler = function(argv) {
           process.cwd(),
           outDir,
           packName,
+          "behavior_packs",
           serverConfig.output.path
         );
         serverConfig.output.path = serverOutPath;
@@ -220,8 +257,32 @@ exports.handler = function(argv) {
           }
         });
 
+        deferredMethods.forEach(deferred => {
+          deferred();
+        });
+
         if (argv.install) {
           console.log("Installing...");
+          const installPath = join(
+            homedir,
+            "Library",
+            "Application Support",
+            "mcpelauncher",
+            "games",
+            "com.mojang",
+            "development_behavior_packs"
+          );
+          console.log({ installPath });
+          del(join(process.cwd(), installPath, packName));
+          copySync(join(process.cwd(), outDir), installPath);
+
+          // del(installPath);
+          // if (existsSync(installPath)) {
+          //   copyAssets.forEach(asset => {
+          //     copySync(join(process.cwd(), outDir), installPath);
+          //   });
+          //   // copySync(join(process.cwd(), outDir));
+          // }
           // "postbuild": "rm -rf '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'
           // && cp - rf./ dist '/Users/bitmonolith/Library/Application Support/mcpelauncher/games/com.mojang/development_behavior_packs/Ragnarok'"
         }
