@@ -1,0 +1,32 @@
+{
+  "buildOptions": {
+    "outDir": "dist"
+  },
+  "packs": {
+    "behaviorPack": {
+      "manifest": "src/behaviors/manifest.json",
+      "icon": "src/behaviors/pack_icon.png",
+      "system": [0, 0],
+      "modules": {
+        "clientData": {
+          "build": {
+            "client": {
+              "entry": "src/behaviors/scripts/client/client.ts",
+              "output": {
+                "path": "scripts/client",
+                "filename": "client.js"
+              }
+            },
+            "server": {
+              "entry": "src/behaviors/scripts/server/server.ts",
+              "output": {
+                "path": "scripts/server",
+                "filename": "server.js"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

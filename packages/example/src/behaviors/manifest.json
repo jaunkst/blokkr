@@ -1,0 +1,23 @@
+{
+  "format_version": 1,
+  "header": {
+    "name": "Example Behavior Pack",
+    "description": "Gameplay",
+    "uuid": "721b816d-8314-477d-b6c1-539a344cb2e9",
+    "version": [1, 0, 0]
+  },
+  "modules": [
+    {
+      "description": "behaviours for Ragnarok",
+      "type": "client_data",
+      "uuid": "80a19e9a-875c-4941-8383-b8457478667c",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "8e1aaf0c-f626-4a95-85a5-04ae20bf7b2a",
+      "version": [1, 0, 0]
+    }
+  ]
+}

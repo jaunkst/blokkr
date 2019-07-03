@@ -1,0 +1,10 @@
+{
+  "defaultSeverity": "error",
+  "linterOptions": {
+    "exclude": ["**/*.json"]
+  },
+  "extends": ["tslint:recommended"],
+  "jsRules": {},
+  "rules": {},
+  "rulesDirectory": []
+}
