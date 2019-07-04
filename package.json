@@ -5,12 +5,14 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "watch": "node ./scripts/watch.js",
     "format:write": "./node_modules/.bin/prettier --write 'packages/**/*.ts'"
   },
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
+    "chokidar": "^3.0.1",
     "husky": "^3.0.0-0",
     "oao": "^1.6.0",
     "prettier": "^1.18.2"
