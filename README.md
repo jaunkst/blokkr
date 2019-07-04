@@ -1,7 +1,6 @@
 [![Build Status](https://cloud.drone.io/api/badges/jaunkst/blokkr/status.svg)](https://cloud.drone.io/jaunkst/blokkr)
 [![CodeFactor](https://www.codefactor.io/repository/github/jaunkst/blokkr/badge)](https://www.codefactor.io/repository/github/jaunkst/blokkr)
 
-
 > 👷 WARNING! This repo is still in progress.
 
 ---
@@ -99,6 +98,14 @@ Each System runs continuously and performs global actions on every Entity that p
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://gist.github.com/jaunkst/82cee7be059c9da3d1edec4c0b6267f8) for details on our code of conduct, and the process for submitting pull requests to us.
+
+### Development Commands
+
+To rebuild the monorepor dependencies and example app on file change run.
+
+```
+yarn watch
+```
 
 ## Versioning
 
