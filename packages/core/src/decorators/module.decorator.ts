@@ -157,7 +157,6 @@ class ModuleDecorator {
   }
 
   private resolveModule(): void {
-    // TODO: FIX SCOPE OF MODULE CONSTRUCTOR
     const container: Container = resolveContainerForTarget(this.target);
     container
       .bind(this.target)

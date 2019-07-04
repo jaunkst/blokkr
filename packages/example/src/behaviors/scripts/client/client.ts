@@ -9,7 +9,7 @@ import { ExampleSubSystem } from "./subsystem-a.system";
   bootstrap: [ExampleSystem]
 })
 class ClientModule {
-  public name: "ClientModule";
+  public name: string = "ClientLAKD";
   constructor(client: ClientService) {
     const scriptLoggerConfig = client.createEventData(
       "minecraft:script_logger_config"
