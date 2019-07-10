@@ -8,7 +8,6 @@ export class ExampleSubSystem implements OnInit, OnUpdate {
   }
   onInit() {
     console.log("ExampleSubSystem onInit");
-    console.log(this.client);
   }
   onUpdate() {
     // console.log("onUpdate");

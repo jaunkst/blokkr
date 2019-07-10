@@ -1,4 +1,4 @@
-class ConsolePollyfill {
+class ConsolePolyfill {
   constructor() {
     this.tokenTypes = [
       { regex: /^\s+/, tokenType: "WHITESPACE" },
@@ -71,7 +71,7 @@ class ConsolePollyfill {
         }
         return i;
       })
-      .join("");
+      .join(" ");
     __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
   }
   error(...data) {
@@ -85,7 +85,7 @@ class ConsolePollyfill {
         }
         return i;
       })
-      .join("");
+      .join(" ");
     __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
   }
   info(...data) {
@@ -99,7 +99,7 @@ class ConsolePollyfill {
         }
         return i;
       })
-      .join("");
+      .join(" ");
     __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
   }
   debug(...data) {
@@ -113,9 +113,9 @@ class ConsolePollyfill {
         }
         return i;
       })
-      .join("");
+      .join(" ");
     __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
   }
 }
 
-__console__ = new ConsolePollyfill();
+__console__ = new ConsolePolyfill();

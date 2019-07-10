@@ -8,6 +8,13 @@ serverSystem.initialize = function() {
   // Register any components you will attach to game objects
   // system.registerComponent(...)
 
+  //set up chat event data object
+  let chatEventData = serverSystem.createEventData(
+    "minecraft:display_chat_event"
+  );
+  chatEventData.data.message = "Server Initialized";
+  serverSystem.broadcastEvent("minecraft:display_chat_event", chatEventData);
+
   // Set up any events you wish to listen to
   serverSystem.listenForEvent("test:pinky", eventData =>
     receivePinkyMessage(eventData)
