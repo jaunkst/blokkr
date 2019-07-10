@@ -9,7 +9,6 @@ import { ExampleSubSystem } from "./subsystem-a.system";
   bootstrap: [ExampleSystem]
 })
 class ClientModule {
-  public name: string = "ClientLAKD";
   constructor(client: ClientService) {
     const scriptLoggerConfig = client.createEventData(
       "minecraft:script_logger_config"
@@ -22,6 +21,5 @@ class ClientModule {
     let chatEventData = client.createEventData("minecraft:display_chat_event");
     chatEventData.data.message = "ClientService is working.";
     client.broadcastEvent("minecraft:display_chat_event", chatEventData);
-    console.log("ClientModule", this);
   }
 }

@@ -39,7 +39,7 @@ function receivePinkyMessage(parameters: any) {
     let chatEventData = serverSystem.createEventData(
       "minecraft:display_chat_event"
     );
-    chatEventData.data.message = "Servier Stuff 2";
+    chatEventData.data.message = "Server Stuff 2";
     serverSystem.broadcastEvent("minecraft:display_chat_event", chatEventData);
   }
 }

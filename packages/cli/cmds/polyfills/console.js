@@ -74,6 +74,48 @@ class ConsolePollyfill {
       .join("");
     __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
   }
+  error(...data) {
+    let chatEventData = __system__.createEventData(
+      "minecraft:display_chat_event"
+    );
+    chatEventData.data.message = data
+      .map(i => {
+        if (typeof i === "object") {
+          return this.prettyJson(i);
+        }
+        return i;
+      })
+      .join("");
+    __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
+  }
+  info(...data) {
+    let chatEventData = __system__.createEventData(
+      "minecraft:display_chat_event"
+    );
+    chatEventData.data.message = data
+      .map(i => {
+        if (typeof i === "object") {
+          return this.prettyJson(i);
+        }
+        return i;
+      })
+      .join("");
+    __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
+  }
+  debug(...data) {
+    let chatEventData = __system__.createEventData(
+      "minecraft:display_chat_event"
+    );
+    chatEventData.data.message = data
+      .map(i => {
+        if (typeof i === "object") {
+          return this.prettyJson(i);
+        }
+        return i;
+      })
+      .join("");
+    __system__.broadcastEvent("minecraft:display_chat_event", chatEventData);
+  }
 }
 
 __console__ = new ConsolePollyfill();

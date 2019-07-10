@@ -244,8 +244,8 @@ exports.handler = function(argv) {
             "com.mojang",
             "development_behavior_packs"
           );
-          const targetPackPath = join(process.cwd(), installPath, packName);
-          del(targetPackPath, { force: true });
+          const targetPackPath = join(installPath, packName);
+          del.sync(targetPackPath, { force: true });
           copySync(join(process.cwd(), outDir), installPath);
           process.stdout.write(
             `${chalk.green("Installed")} ${targetPackPath}\n`
